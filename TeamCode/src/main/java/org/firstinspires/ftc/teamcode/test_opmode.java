@@ -34,6 +34,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -61,6 +62,8 @@ public class test_opmode extends LinearOpMode {
     private DcMotor leftDrive = null;
     private DcMotor rightDrive = null;
 
+    private Servo test_servo  = null;
+
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
@@ -70,6 +73,7 @@ public class test_opmode extends LinearOpMode {
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
         leftDrive  = hardwareMap.get(DcMotor.class, "test_motor");
+        test_servo = hardwareMap.get(Servo.class, "test_servo");
         //rightDrive = hardwareMap.get(DcMotor.class, "right_drive");
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
@@ -81,6 +85,21 @@ public class test_opmode extends LinearOpMode {
         // Wait for the game to start (driver presses START)
         waitForStart();
         runtime.reset();
+
+        while (opModeIsActive()) {
+            test_servo.setPosition(0);
+            telemetry.addData("Number of Seconds in Phase 1", runtime.seconds());
+            telemetry.update();
+        }
+
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() <= 3.0)) {
+            test_servo.setPosition(1);
+            telemetry.addData("Number of Seconds in Phase 1", runtime.seconds());
+            telemetry.update();
+        }
+
+
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -109,7 +128,7 @@ public class test_opmode extends LinearOpMode {
 
             //rightDrive.setPower(rightPower);
 
-            for (double i = 0; i < 1; i = i+0.01)
+            for (double i = 0; i < 0; i = i+0.01)
             {
                 double time =getRuntime();
                 while(getRuntime() < time + 3)
@@ -121,6 +140,11 @@ public class test_opmode extends LinearOpMode {
                 }
 
             }
+
+
+
+            telemetry.addData("Status", "Running");
+            telemetry.update();
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
