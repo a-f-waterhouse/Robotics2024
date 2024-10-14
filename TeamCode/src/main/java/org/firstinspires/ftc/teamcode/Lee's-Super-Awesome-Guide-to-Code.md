@@ -20,8 +20,7 @@ The structure of an OpMode is as such:
           * write your code here!
 
 ## Imports
-This is probably terrible advice, but even if your not starting with a sample, I'd copy/paste a samples
-imports first and then just take out any that aren't used, to save you time and effort, and to save me from learning which ones are actually necessary!
+Android studio *should* create imports for you automatically as you go along!
 
 ## Type of OpMode
 There may or may not be more, but the 3 important lines are:
@@ -58,6 +57,9 @@ Example:
 
 So essentially ``<name of object (as declared above)> = hardwareMap.get(<type of object>.class, "<name on driver hub config>");``
 The important part is that the second parameter must match what you have called the thingimabob in the config settings on the Driver Hub
+
+## Wait for start
+This is rather self-explanatory, you just need to add a ``waitForStart();`` before your loop, so that it doesn't execute the rest of the code until you press start
 
 ## (infinite?) Loop
 The main place you need to put your code is with a ``while (opModeIsActive()){} loop``
