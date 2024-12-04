@@ -31,24 +31,21 @@ public class DriveTrain_Controller extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
+        Boolean servoPos = false;
+
         while(opModeIsActive())
         {
+            claw_servo.setPosition((servoPos)?1:0);
+            if(gamepad1.b)
+            {
+                servoPos = !servoPos;
+            }
+
             double x = gamepad1.left_stick_x;
             double y = -gamepad1.left_stick_y;
 
-            double servo_left = gamepad1.left_trigger;
-            double servo_right = gamepad1.right_trigger;
-
             right_motor.setPower(y-x);
             left_motor.setPower(y+x);
-
-
-
-
-            if(gamepad1.y)
-            {
-
-            }
 
             telemetry.addData("Status", "running");
             telemetry.update();
