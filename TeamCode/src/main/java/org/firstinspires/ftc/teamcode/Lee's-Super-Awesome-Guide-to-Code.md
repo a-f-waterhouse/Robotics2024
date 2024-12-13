@@ -41,7 +41,7 @@ Some of the main types we need are motors and servos, but later on we'll have to
 
 Example:
 ``private Servo test_servo  = null;``
-It's mostly self explanatory - you can also just miss out the ``=null`` if you want ¯\_(ツ)_/¯
+It's mostly self explanatory - you can also just miss out the ``=null`` if you want ``¯\_(ツ)_/¯``
 
 ## Override main program part
 There are 2 parts to this.
