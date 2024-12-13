@@ -65,4 +65,4 @@ This is rather self-explanatory, you just need to add a ``waitForStart();`` befo
 The main place you need to put your code is with a ``while (opModeIsActive()){} loop``
 
 ## You're all set up!!
-Congratulations, now you just need to write some code which actually *does* something!! (*^▽^*)
+Congratulations, now you just need to write some code which actually *does* something!! ``(*^▽^*)``
