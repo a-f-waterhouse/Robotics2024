@@ -26,7 +26,7 @@ Android studio *should* create imports for you automatically as you go along!
 There may or may not be more, but the 3 important lines are:
 
 ``@TeleOp`` -> this declares it as an opmode to be used with a controller
-``@Autonomous`` -> declares it asn autonomous opmode (wowwwww :0 /sarc)
+``@Autonomous`` -> declares it as an autonomous opmode (wowwwww :0 /sarc)
 ``@Disabled``-> means it doesn't show up under the list of opmodes on the robot, so can't be run
 
 ## Declaring the main class
