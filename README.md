@@ -1,3 +1,9 @@
+## Hello!
+
+This is the code used by FTC team 631 from Barton Peveril: If you have any questions or would like to borrow parts, then feel free <3
+
+## vvvv Below is from original FTC SDK vvvv
+
 ## NOTICE
 
 This repository contains the public FTC SDK for the INTO THE DEEP (2024-2025) competition season.
