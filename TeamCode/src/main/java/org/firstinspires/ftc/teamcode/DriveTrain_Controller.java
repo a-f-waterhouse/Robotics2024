@@ -15,6 +15,7 @@ public class DriveTrain_Controller extends LinearOpMode {
     private DcMotor right_motor;
 
     private DcMotor arm_motor;
+    private DcMotor arm_rotate_motor;
     private Servo claw_servo;
     private ElapsedTime     bPressed = new ElapsedTime();
 
@@ -47,6 +48,7 @@ public class DriveTrain_Controller extends LinearOpMode {
         right_motor = hardwareMap.get(DcMotor.class, "right");
         claw_servo = hardwareMap.get(Servo.class, "claw");
         arm_motor = hardwareMap.get(DcMotor.class, "arm");
+        arm_rotate_motor = hardwareMap.get(DcMotor.class, "armRotate");
 
         right_motor.setDirection(DcMotorSimple.Direction.REVERSE);
         arm_motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -61,6 +63,7 @@ public class DriveTrain_Controller extends LinearOpMode {
         int[] armPos = {1250,0};
         int s = 0;
         int a = 0;
+        double arm_rotate_power = 0;
 
         while(opModeIsActive())
         {
@@ -73,26 +76,21 @@ public class DriveTrain_Controller extends LinearOpMode {
                     bPressed.reset();
                 }
             }
-            /*if(gamepad1.a)
+            if(gamepad1.y)
             {
-                if(aPressed.seconds() >= 0.5)
-                {
-                    a++;
-                    a%=2;
-                    arm_motor.setTargetPosition(armPos[a]);
-                    arm_motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    arm_motor.setPower(0.5);
-                    aPressed.reset();
-                }
-
-            }*/
-            if(gamepad1.right_stick_y > 0)
+                arm_rotate_power = 0.5;
+            }
+            else if (gamepad1.a)
+            {
+                arm_rotate_power = -0.5;
+            }
+            /*if(gamepad1.right_stick_y > 0)
             {
                 arm_motor.setTargetPosition(MapJoystickToMotor(gamepad1.right_stick_y));
                 arm_motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 arm_motor.setPower(0.5);
-            }
-            else if(gamepad1.right_stick_y < 0)
+            }*/
+            /*else if(gamepad1.right_stick_y < 0)
             {
                 arm_motor.setTargetPosition(0);
                 arm_motor.setMode(DcMotor.RunMode.RUN_TO_POSITION)                                                                                                                                                                                                                                 ;
@@ -100,7 +98,7 @@ public class DriveTrain_Controller extends LinearOpMode {
             }
             else if(!arm_motor.isBusy()) {
                 arm_motor.setPower(0);
-            }
+            }*/
 
 
             double x = gamepad1.left_stick_x;
@@ -108,6 +106,7 @@ public class DriveTrain_Controller extends LinearOpMode {
 
             right_motor.setPower(y-x);
             left_motor.setPower(y+x);
+            arm_rotate_motor.setPower(arm_rotate_power);
             claw_servo.setPosition(DegreesToPos(servoPos[s]));
 
             telemetry.addData("Status", "running");
