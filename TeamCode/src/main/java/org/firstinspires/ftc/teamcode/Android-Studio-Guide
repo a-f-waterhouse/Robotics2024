@@ -1,0 +1,30 @@
+How to set up Android Studio
+
+1 - install the latest version of android studio:
+https://developer.android.com/studio
+
+2 - clone the project using github:
+https://github.com/a-f-waterhouse/Robotics2024
+
+3 - click build, and if you have no errors: congratulations, you're good to skip to step 13
+
+4 - otherwise, if there's anything about gradle/javascript being outdated/incompatible the keep going!
+
+5 - install Java 13.0 (i can send you the installer .exe to save you having to make an oracle account)
+
+6 - install gradle 7.4.2:
+https://gradle.org/releases/
+
+ 7 - unzip the gradle file and remember where you put it!
+
+8 - open the project in android studio, and navigate to File -> Settings -> Build, Execution, Deployment -> Build Tools -> Gradle 
+
+9 - change the distribution to "Local Installation", and choose the file where you put your version of Gradle
+
+10 - for Grade JDK, select "13 Oracle OpenJDK 13.0.1" or whichever one seems to be your local installation of Java 13
+
+11 - Build again, and that *should* have fixed the errors! 
+
+12 - connect up to the control hub (either by wifi or cable) and make sure it is selected at the top under devices
+
+13 - click run!

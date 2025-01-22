@@ -26,7 +26,7 @@ Android studio *should* create imports for you automatically as you go along!
 There may or may not be more, but the 3 important lines are:
 
 ``@TeleOp`` -> this declares it as an opmode to be used with a controller
-``@Autonomous`` -> declares it asn autonomous opmode (wowwwww :0 /sarc)
+``@Autonomous`` -> declares it as an autonomous opmode (wowwwww :0 /sarc)
 ``@Disabled``-> means it doesn't show up under the list of opmodes on the robot, so can't be run
 
 ## Declaring the main class
@@ -41,7 +41,7 @@ Some of the main types we need are motors and servos, but later on we'll have to
 
 Example:
 ``private Servo test_servo  = null;``
-It's mostly self explanatory - you can also just miss out the ``=null`` if you want ¯\_(ツ)_/¯
+It's mostly self explanatory - you can also just miss out the ``=null`` if you want ``¯\_(ツ)_/¯``
 
 ## Override main program part
 There are 2 parts to this.
@@ -65,4 +65,4 @@ This is rather self-explanatory, you just need to add a ``waitForStart();`` befo
 The main place you need to put your code is with a ``while (opModeIsActive()){} loop``
 
 ## You're all set up!!
-Congratulations, now you just need to write some code which actually *does* something!! (*^▽^*)
+Congratulations, now you just need to write some code which actually *does* something!! ``(*^▽^*)``
