@@ -13,13 +13,12 @@ public class DriveTrain_Controller extends LinearOpMode {
 
     private DcMotor left_motor;
     private DcMotor right_motor;
-
     private DcMotor arm_motor;
     private DcMotor arm_rotate_motor;
     private Servo claw_servo;
     private ElapsedTime     bPressed = new ElapsedTime();
-
     private ElapsedTime     aPressed = new ElapsedTime();
+    private ElapsedTime     yPressed = new ElapsedTime();
 
     private int[] servoPositions = {0,45};
 
@@ -78,11 +77,17 @@ public class DriveTrain_Controller extends LinearOpMode {
             }
             if(gamepad1.y)
             {
+                yPressed.reset();
                 arm_rotate_power = 0.5;
             }
             else if (gamepad1.a)
             {
+                aPressed.reset();
                 arm_rotate_power = -0.5;
+            }
+            if(aPressed.seconds() >= 0.5 || yPressed.seconds() >= 0.5)
+            {
+                arm_rotate_power = 0;
             }
             /*if(gamepad1.right_stick_y > 0)
             {
