@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp
 
-public class DriveTrain_Controller extends LinearOpMode {
+public class NOLIMITS_TESTINGONLY extends LinearOpMode {
 
     private DcMotor left_motor;
     private DcMotor right_motor;
@@ -19,10 +19,14 @@ public class DriveTrain_Controller extends LinearOpMode {
     private ElapsedTime     bPressed = new ElapsedTime();
     private ElapsedTime     aPressed = new ElapsedTime();
     private ElapsedTime     yPressed = new ElapsedTime();
+
+    private int[] servoPositions = {0,45};
+
     private double DegreesToPos(double degrees) //0 = -135, 1 = 135
     {
         return (degrees + 135)/270;
     }
+
 
     @Override
     public void runOpMode() {
@@ -46,10 +50,10 @@ public class DriveTrain_Controller extends LinearOpMode {
 
         waitForStart();
 
-        int[]  servoPos = {30,-30};
+        int[]  servoPos = {-30,30};
         int[] armPos = {480,5};
-        int[] armRotatePos = {}; //DETERMINE VALUES
         int s = 0;
+        int a = 0;
         double arm_rotate_power = 0;
 
         while(opModeIsActive())
@@ -83,26 +87,13 @@ public class DriveTrain_Controller extends LinearOpMode {
             double armPower = -gamepad1.right_stick_y;
             right_motor.setPower(y-x);
             left_motor.setPower(y+x);
+            arm_rotate_motor.setPower(arm_rotate_power);
+            arm_motor.setPower(armPower);
             claw_servo.setPosition(DegreesToPos(servoPos[s]));
 
-            if(arm_motor.getCurrentPosition() < armPos[0] && armPower > 0 || arm_motor.getCurrentPosition() > armPos[1] && armPower < 0)
-            {
-                arm_motor.setPower(armPower);
-            }
-            else
-            {
-                arm_motor.setPower(0);
-            }
-            if(arm_rotate_motor.getCurrentPosition() < armRotatePos[0] && armPower > 0 || arm_rotate_motor.getCurrentPosition() > armRotatePos[1] && armPower < 0)
-            {
-                arm_rotate_motor.setPower(arm_rotate_power);
-            }
-            else
-            {
-                arm_rotate_motor.setPower(0);
-            }
-
             telemetry.addData("Status", "running");
+            telemetry.addData("arm power", arm_rotate_power);
+            telemetry.addData("arm position", arm_rotate_motor.getCurrentPosition());
             telemetry.update();
         }
     }
