@@ -48,7 +48,7 @@ public class DriveTrain_Controller extends LinearOpMode {
 
         int[]  servoPos = {30,-30};
         int[] armPos = {480,5};
-        int[] armRotatePos = {}; //DETERMINE VALUES
+        int[] armRotatePos = {-1350, -5}; //out in
         int s = 0;
         double arm_rotate_power = 0;
 
@@ -93,8 +93,9 @@ public class DriveTrain_Controller extends LinearOpMode {
             {
                 arm_motor.setPower(0);
             }
-            if(arm_rotate_motor.getCurrentPosition() < armRotatePos[0] && armPower > 0 || arm_rotate_motor.getCurrentPosition() > armRotatePos[1] && armPower < 0)
+            if(arm_rotate_motor.getCurrentPosition() > armRotatePos[0] && arm_rotate_power < 0 || arm_rotate_motor.getCurrentPosition() < armRotatePos[1] && arm_rotate_power > 0)
             {
+
                 arm_rotate_motor.setPower(arm_rotate_power);
             }
             else
@@ -103,6 +104,8 @@ public class DriveTrain_Controller extends LinearOpMode {
             }
 
             telemetry.addData("Status", "running");
+            telemetry.addData("Arm rotate", arm_rotate_motor.getCurrentPosition());
+            telemetry.addData("Power", arm_rotate_power);
             telemetry.update();
         }
     }

@@ -61,7 +61,7 @@ The important part is that the second parameter must match what you have called 
 ## Wait for start
 This is rather self-explanatory, you just need to add a ``waitForStart();`` before your loop, so that it doesn't execute the rest of the code until you press start
 
-## (infinite?) Loop
+## Loop
 The main place you need to put your code is with a ``while (opModeIsActive()){} loop``
 
 ## You're all set up!!

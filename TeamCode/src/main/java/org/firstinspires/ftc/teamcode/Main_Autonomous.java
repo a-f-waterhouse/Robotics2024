@@ -22,18 +22,16 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
-
-
-
+import java.util.concurrent.TimeUnit;
 @Autonomous
 public class Main_Autonomous extends LinearOpMode {
 
-    public class Robot
+    public static class Robot
     {
         public int heading;
         public int[] position;
 
-        public String currentState;
+        public String currentState = "";
     }
 
     private int[][] AprilTagCoords =
@@ -50,14 +48,14 @@ public class Main_Autonomous extends LinearOpMode {
     int[]  servoPos = {-30,30}; //open, close
     int[] armPos = {480,5}; //out, in
     
-    int[] armRotatePos = {}; //up, down
+    int[] armRotatePos = {-1350, 5}; //up, down
 
-    private int CountsPerCM = 30; //NEED TO CALCULATE
+    private int CountsPerInch = 1; //NEED TO CALCULATE
 
     //objects
-    private Robot bpv;
+    private Robot bpv = new Robot();
     private AprilTagProcessor aprilTag;
-    private VisionPortal visionPortal;
+    //private VisionPortal visionPortal;
     private DcMotor left_drive;
     private DcMotor right_drive;    
     private DcMotor arm_rotate;    
@@ -66,8 +64,7 @@ public class Main_Autonomous extends LinearOpMode {
     private IMU imu;
 
     @Override
-    public void runOpMode()
-    {
+    public void runOpMode() throws InterruptedException {
         left_drive = hardwareMap.get(DcMotor.class, "left");
         right_drive = hardwareMap.get(DcMotor.class, "right");
         claw_servo = hardwareMap.get(Servo.class, "claw");
@@ -81,7 +78,7 @@ public class Main_Autonomous extends LinearOpMode {
 
         imu.initialize(new IMU.Parameters(orientationOnRobot));
 
-        initAprilTag();
+        //initAprilTag();
         right_drive.setDirection(DcMotorSimple.Direction.REVERSE);
 
         left_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -91,9 +88,13 @@ public class Main_Autonomous extends LinearOpMode {
 
 
         while (opModeInInit()) {
-            initAprilTag();
+            //initAprilTag();
             telemetry.addData("Status", "initialised");
             telemetry.update();
+
+            bpv.currentState = "Start";
+            bpv.position = new int[2];
+            bpv.heading = 0;
         }
 
         left_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -106,14 +107,16 @@ public class Main_Autonomous extends LinearOpMode {
 
         while(opModeIsActive())
         {
-            telemetry.addData("State",bpv.currentState);
-            switch(bpv.currentState)
-            {
-                
-            }
+            telemetry.addData("State", bpv.currentState);
+            telemetry.addData("Position [x,y,heading]", " %7d: %7d :%7d",(bpv.position[0]), bpv.position[1], bpv.heading);
+
+            telemetry.addData("left, right", "%7d :%7d", (left_drive.getCurrentPosition()), (right_drive.getCurrentPosition()));
+
             telemetry.update();
+
+            MoveForward(1000,0,0.3);
         }
-        visionPortal.close();
+        //visionPortal.close();
     }
     public void MoveToCoords(double targetHeading, int[] coords)
     {
@@ -122,11 +125,11 @@ public class Main_Autonomous extends LinearOpMode {
         MoveForward(distance,0,1);
     }
 
-    public void MoveForward(double distance, double heading, double maxSpeed)
+    public void MoveForward(double distance, double heading, double maxSpeed) //distance in inches
     {
-        if(opModeIsActive())
+        /*if(opModeIsActive())
         {
-            int moveCounts = (int)(distance * CountsPerCM);
+            int moveCounts = (int)(distance * CountsPerInch);
             int leftTarget = left_drive.getCurrentPosition() + moveCounts;
             int rightTarget = right_drive.getCurrentPosition() + moveCounts; //new target positions
 
@@ -136,8 +139,17 @@ public class Main_Autonomous extends LinearOpMode {
             right_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             Move(maxSpeed, 0);
+        }*/
+        //Move (0,0);
+
+        if(opModeIsActive())
+        {
+            left_drive.setTargetPosition(1000);
+            right_drive.setTargetPosition(1000);
+            left_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            right_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            Move(0.3,0);
         }
-        Move (0,0);
 
     }
 
@@ -147,6 +159,7 @@ public class Main_Autonomous extends LinearOpMode {
             double currentBearing = imu.getRobotYawPitchRollAngles().getYaw();
             while (currentBearing < heading)
             {
+                currentBearing = imu.getRobotYawPitchRollAngles().getYaw();
                 Move(0,0.3);
             }
         }
@@ -154,7 +167,7 @@ public class Main_Autonomous extends LinearOpMode {
     }
     public void Move(double drive, double turn)
     {
-        double leftSpeed = drive + turn;
+        /*double leftSpeed = drive + turn;
         double rightSpeed = drive - turn;
 
         double max = Math.max(Math.abs(leftSpeed), Math.abs(rightSpeed));
@@ -165,7 +178,13 @@ public class Main_Autonomous extends LinearOpMode {
         }
 
         left_drive.setPower(leftSpeed);
-        right_drive.setPower(rightSpeed);
+        right_drive.setPower(rightSpeed);*/
+        if(opModeIsActive())
+        {
+            left_drive.setPower(drive);
+            right_drive.setPower(drive);
+        }
+
 
     }
     public void GrabWithClaw()
@@ -176,9 +195,13 @@ public class Main_Autonomous extends LinearOpMode {
 
     public void MoveArm(boolean down)
     {
-        arm_rotate.setTargetPosition(armRotatePos[(down ? 1 : 0)]);
-        arm_rotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        arm_rotate.setPower(0.5);
+        if(opModeIsActive())
+        {
+            arm_rotate.setTargetPosition(armRotatePos[(down ? 1 : 0)]);
+            arm_rotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            arm_rotate.setPower(0.5);
+        }
+
     }
 
     public void MoveClaw(boolean open)
@@ -200,14 +223,20 @@ public class Main_Autonomous extends LinearOpMode {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         for (AprilTagDetection d:currentDetections)
         {
-            //if(Arrays.stream(red).anyMatch())
+            if(Arrays.stream(red).anyMatch(d::equals))
             {
-
+                return "Red";
+            }
+            else if(Arrays.stream(red).anyMatch(d::equals))
+            {
+                return "Blue";
+            }
+            else
+            {
+                return "Unknown";
             }
         }
-
-
-        return "";
+        return "NoDetections";
     }
 
 
@@ -242,7 +271,7 @@ public class Main_Autonomous extends LinearOpMode {
 
         builder.addProcessor(aprilTag);
 
-        visionPortal = builder.build();
+        //visionPortal = builder.build();
 
 
     }
