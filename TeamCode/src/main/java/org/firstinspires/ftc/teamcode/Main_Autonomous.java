@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -20,11 +21,6 @@ import java.util.List;
 
 @Autonomous
 public class Main_Autonomous extends LinearOpMode {
-    private static class Robot
-    {
-        public int[] position;
-        public String currentState = "";
-    }
     private int[][] AprilTagCoords =
     {
         {-72, 48},
@@ -40,10 +36,6 @@ public class Main_Autonomous extends LinearOpMode {
     int[] armRotatePos = {-1350, -5}; //up, down
     private static final int CountsPerInch = 1; //NEED TO CALCULATE
     private static final int CountsPerDegree = 1; //NEED To CALCULATE
-    private static final int CountsPerInch_ArmExtend = 1;
-    private static final int CountsPerInch_ArmRotate = 1;
-
-    private Robot bpv = new Robot();
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
     private DcMotor left_drive;
@@ -52,9 +44,12 @@ public class Main_Autonomous extends LinearOpMode {
     private DcMotor arm_extension;    
     private Servo claw_servo;
     private IMU imu;
+    private ElapsedTime timer = new ElapsedTime();
+    String State = "";
 
     @Override
     public void runOpMode() throws InterruptedException {
+
         left_drive = hardwareMap.get(DcMotor.class, "left");
         right_drive = hardwareMap.get(DcMotor.class, "right");
         claw_servo = hardwareMap.get(Servo.class, "claw");
@@ -82,24 +77,16 @@ public class Main_Autonomous extends LinearOpMode {
             telemetry.addData("Status", "initialised");
             telemetry.addData("Start position", initPos);
             telemetry.update();
-            bpv.position = new int[2];
             switch(initPos)
             {
                 case "Clip":
-                    bpv.position[0]= 0; ///
-                    bpv.position[1]= 0; ///
-                    bpv.currentState = "ClipToSub";
+                    State = "ClipToSub";
                     break;
                 case "Score":
-                    bpv.position[0]= 0; ///
-                    bpv.position[1]= 0; ///
-                    bpv.currentState = "ScoreBaskets";
+                    State = "ScoreBaskets";
                     break;
-
                 default:
-                    bpv.position[0] = 0;
-                    bpv.position[1] = 0;
-                    bpv.currentState = "";
+                    State = "";
 
             }
         }
@@ -112,27 +99,96 @@ public class Main_Autonomous extends LinearOpMode {
 
         waitForStart();
 
-        while(opModeIsActive())
+        while(opModeIsActive()) //TURN = positive = left
         {
-            telemetry.addData("State", bpv.currentState);
-            telemetry.addData("Position [x,y,heading]", " %7d: %7d :%7f",(bpv.position[0]), bpv.position[1], imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+            telemetry.addData("State", State);
+            telemetry.addData("Heading: ", "%7f", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
             telemetry.addData("left, right", "%7d :%7d", (left_drive.getCurrentPosition()), (right_drive.getCurrentPosition()));
             telemetry.update();
-
-            TurnWithEncoders(160,0.05); //80= 90
-            CheckBusy();
-            telemetry.addData("Heading: ", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
-            telemetry.update();
-            Move(0,0);
-
-            //MoveForward(1000,0.3);
-            //CheckBusy();
-            Thread.sleep(10000000);
+            switch (State)
+            {
+                case "ClipToSub":
+                    ClippingToSub();
+                    State = "ObservationZone";
+                    break;
+                case "ScoreBaskets":
+                    ScoringBaskets();
+                    State = "AscentZone";
+                    break;
+                case "ObservationZone":
+                    ReturnToOZ();
+                    State = "";
+                    break;
+                case "AscentZone":
+                    GoToAZ();
+                    break;
+            }
             requestOpModeStop();
 
-       }
+        }
         visionPortal.close();
     }
+
+    public void ClippingToSub()
+    {
+        if(opModeIsActive())
+        {
+            TurnWithEncoders(75,0.05); //80= 90
+            MoveForward(1000,0.3);
+            TurnWithEncoders(-30,0.05); //80= 90
+            Move(0,0);
+            RotateArm(false);
+            CheckBusy();
+            ExtendArm(false);
+            CheckBusy();
+            /*RotateArm(true); //CHECK ANGLES!!
+            CheckBusy();*/
+            MoveClaw(true);
+            ExtendArm(true);;
+            RotateArm(true);;
+        }
+    }
+
+    public void ReturnToOZ() //observation zone
+    {
+        if(opModeIsActive())
+        {
+            TurnWithEncoders(-135, 0.05);
+            MoveForward(100, 0.3);
+            TurnWithEncoders(180, 0.05);
+        }
+    }
+
+    public void ScoringBaskets()
+    {
+        if(opModeIsActive())
+        {
+            TurnWithEncoders(10, 0.05);
+            MoveForward(500, 0.3);
+            RotateArm(false);
+            ExtendArm(false);
+            MoveForward(20, 0.1);
+            MoveClaw(true);
+            ExtendArm(true);
+            RotateArm(true);
+
+        }
+    }
+
+    public void GoToAZ() //Ascent Zone
+    {
+        if(opModeIsActive())
+        {
+            TurnWithEncoders(-100, 0.05); //100 degrees right
+            MoveForward(500, 0.3); //2m
+            TurnWithEncoders(-80, 0.05); //80 degrees right
+            MoveForward(100, 0.05); //0.5m
+            TurnWithEncoders(180, 0.05); //180 degrees
+        }
+    }
+
+
+
 
     public void MoveForward(double distance, double maxSpeed) //distance in inches
     {
@@ -172,6 +228,7 @@ public class Main_Autonomous extends LinearOpMode {
             right_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             left_drive.setPower(speed);
             right_drive.setPower(speed);
+            CheckBusy();
         }
 
     }
@@ -190,6 +247,7 @@ public class Main_Autonomous extends LinearOpMode {
             {
                 arm_rotate.setPower(-0.5);
             }
+            CheckBusy();
         }
     }
 
@@ -197,16 +255,17 @@ public class Main_Autonomous extends LinearOpMode {
     {
         if(opModeIsActive())
         {
-            arm_rotate.setTargetPosition(armRotatePos[(in ? 1 : 0)]);
-            arm_rotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            arm_extension.setTargetPosition(armPos[(in ? 1 : 0)]);
+            arm_extension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             if(in)
             {
-                arm_rotate.setPower(-0.5);
+                arm_extension.setPower(-0.5);
             }
             else
             {
-                arm_rotate.setPower(0.5);
+                arm_extension.setPower(0.5);
             }
+            CheckBusy();
         }
     }
 
@@ -230,6 +289,7 @@ public class Main_Autonomous extends LinearOpMode {
 
             left_drive.setPower(leftSpeed);
             right_drive.setPower(rightSpeed);
+            CheckBusy();
         }
 
     }
@@ -240,13 +300,27 @@ public class Main_Autonomous extends LinearOpMode {
     }
     public void CheckBusy()
     {
-        while(left_drive.isBusy() || right_drive.isBusy())
+        if(opModeIsActive())
         {
-            telemetry.addData("State", bpv.currentState);
-            telemetry.addData("Position [x,y,heading]", " %7d: %7d :%7f",(bpv.position[0]), bpv.position[1], imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
-            telemetry.addData("left, right", "%7d :%7d", (left_drive.getCurrentPosition()), (right_drive.getCurrentPosition()));
-            telemetry.update();
+            while(left_drive.isBusy() || right_drive.isBusy())
+            {
+                telemetry.addData("State", State);
+                telemetry.addData("Heading: ", "%7f", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+                telemetry.addData("left, right", "%7d :%7d", (left_drive.getCurrentPosition()), (right_drive.getCurrentPosition()));
+                telemetry.update();
+            }
+            while(arm_rotate.isBusy() || arm_extension.isBusy())
+            {
+                telemetry.addData("State", State);
+                telemetry.addData("Heading: ", "%7f", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+                telemetry.addData("left, right", "%7d :%7d", (left_drive.getCurrentPosition()), (right_drive.getCurrentPosition()));
+                telemetry.update();
+            }
+            Move(0,0);
+            timer.reset();
+            while(timer.seconds() < 1){}
         }
+
     }
 
     public String DetermineInitialPosition()
