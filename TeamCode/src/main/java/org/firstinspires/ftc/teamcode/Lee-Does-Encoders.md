@@ -14,18 +14,19 @@ public void runOpMode()
     motor = hardwareMap.get(DcMotor.class, "motor");
     while(opModeIsActive())
     {
-    //code
+    ``<code>``
     }
 }
 ``
-To use encoders, you need to change modes which your motor runs on 
-``motor.setMode(DcMotor.RunMode.``insert run mode here!!``)``
+To use encoders, you need to change modes which your motor runs on:
+``motor.setMode(DcMotor.RunMode.``<insert run mode here>``)``
 
 The possible modes are: //NOTE TO SELF: EXPLAIN EACH ONE
+
 ``RUN_TO_POSITION``
 Used to tell the motors to run for a specific number of ticks.
 Before setting it to this mode, you need to specify a target position, using
-``motor.setTargetPosition(``number of ticks``)`` 
+``motor.setTargetPosition(``<number of ticks>``)``
 
 
 ``RUN_USING_ENCODER``
@@ -35,6 +36,7 @@ Before setting it to this mode, you need to specify a target position, using
 
 
 ``STOP_AND_RESET_ENCODER``
+This does what you think it does! It resets the encoders, effectively "zeroing" them. It is generally good practice to do this at the start of the OpMode.
 
 
 ## In TeleOp (driven) phase
@@ -49,6 +51,8 @@ Our robot had an arm which rotated along the vertical axis, and extended horizon
 
 Now onto *how* to add those limits...
 
+You need to start by working out what values you would like to limit the motion to. 
+To measure these, 
 
 
 ## In autonomous phase
@@ -65,4 +69,8 @@ left_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 right_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 left_drive.setPower(0.3);
 right_drive.setPower(0.3);``
+
+            /*arm_rotate.setTargetPosition(armRotatePos[0]);
+            arm_rotate.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            arm_rotate.setPower(-0.5);*/
 

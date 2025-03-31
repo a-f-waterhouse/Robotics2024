@@ -5,9 +5,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
 @TeleOp
 
-public class DriveTrain_Controller extends LinearOpMode {
+public class ExponentialTest extends LinearOpMode {
 
     private DcMotor left_motor;
     private DcMotor right_motor;
@@ -76,8 +77,16 @@ public class DriveTrain_Controller extends LinearOpMode {
                 arm_rotate_power = 0;
             }
 
-            double x = (gamepad1.left_stick_x) ;
+            double x = (gamepad1.left_stick_x) * 6.9;
             double y = (-gamepad1.left_stick_y);
+            double stoX = Math.abs(x);
+            stoX = Math.exp(stoX) / 1000;
+            if (x < 0){
+                x = -1 * stoX;
+            }
+            else{
+                x = stoX;
+            }
             double armPower = -gamepad1.right_stick_y;
             right_motor.setPower(y-x);
             left_motor.setPower(y+x);
