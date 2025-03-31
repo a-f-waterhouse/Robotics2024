@@ -21,7 +21,7 @@ import java.util.List;
 
 @Autonomous
 public class Main_Autonomous extends LinearOpMode {
-    private int[][] AprilTagCoords =
+    private final int[][] AprilTagCoords =
     {
         {-72, 48},
         {0, 72},
@@ -44,7 +44,7 @@ public class Main_Autonomous extends LinearOpMode {
     private DcMotor arm_extension;    
     private Servo claw_servo;
     private IMU imu;
-    private ElapsedTime timer = new ElapsedTime();
+    private final ElapsedTime timer = new ElapsedTime();
     String State = "";
 
     @Override
@@ -122,6 +122,8 @@ public class Main_Autonomous extends LinearOpMode {
                 case "AscentZone":
                     GoToAZ();
                     break;
+                default:
+                    telemetry.addLine("Help.");
             }
             requestOpModeStop();
 
@@ -144,8 +146,8 @@ public class Main_Autonomous extends LinearOpMode {
             /*RotateArm(true); //CHECK ANGLES!!
             CheckBusy();*/
             MoveClaw(true);
-            ExtendArm(true);;
-            RotateArm(true);;
+            ExtendArm(true);
+            RotateArm(true);
         }
     }
 
@@ -338,10 +340,6 @@ public class Main_Autonomous extends LinearOpMode {
             else if(Arrays.asList(Score).contains(d.id))
             {
                 return "Score";
-            }
-            else
-            {
-                return "Unknown";
             }
         }
         return "NoDetections";
