@@ -33,7 +33,7 @@ public class Main_Autonomous extends LinearOpMode {
     };
     int[]  servoPos = {-30,30}; //open, close
     int[] armPos = {480,5}; //out, in
-    int[] armRotatePos = {-1350, -5}; //up, down
+    int[] armRotatePos = {-800, -5}; //up, down
     private static final int CountsPerInch = 1; //NEED TO CALCULATE
     private static final int CountsPerDegree = 1; //NEED To CALCULATE
     private AprilTagProcessor aprilTag;
@@ -71,12 +71,13 @@ public class Main_Autonomous extends LinearOpMode {
         right_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         left_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         right_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        arm_extension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm_rotate.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        arm_extension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        arm_rotate.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         while (opModeInInit()) {
             String initPos = DetermineInitialPosition();
-            telemetry.addData("Status", "initialised");
-            telemetry.addData("Start position", initPos);
-            telemetry.update();
             switch(initPos)
             {
                 case "Clip":
@@ -85,10 +86,9 @@ public class Main_Autonomous extends LinearOpMode {
                 case "Score":
                     State = "ScoreBaskets";
                     break;
-                default:
-                    State = "";
-
             }
+            telemetry.addData("state: ",State);
+            telemetry.update();
         }
 
         left_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -105,11 +105,13 @@ public class Main_Autonomous extends LinearOpMode {
             telemetry.addData("Heading: ", "%7f", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
             telemetry.addData("left, right", "%7d :%7d", (left_drive.getCurrentPosition()), (right_drive.getCurrentPosition()));
             telemetry.update();
+            State = "ClipToSub"; //testing
             switch (State)
             {
                 case "ClipToSub":
                     ClippingToSub();
                     State = "ObservationZone";
+                    State = "";//
                     break;
                 case "ScoreBaskets":
                     ScoringBaskets();
@@ -121,6 +123,7 @@ public class Main_Autonomous extends LinearOpMode {
                     break;
                 case "AscentZone":
                     GoToAZ();
+                    State = "";
                     break;
                 default:
                     telemetry.addLine("Help.");
@@ -135,16 +138,11 @@ public class Main_Autonomous extends LinearOpMode {
     {
         if(opModeIsActive())
         {
-            TurnWithEncoders(75,0.05); //80= 90
-            MoveForward(1000,0.3);
-            TurnWithEncoders(-30,0.05); //80= 90
-            Move(0,0);
+            //TurnWithEncoders(75,0.05); //80= 90
+            //MoveForward(1000,0.3);
+            TurnWithEncoders(-50,0.05); //80= 90
             RotateArm(false);
-            CheckBusy();
             ExtendArm(false);
-            CheckBusy();
-            /*RotateArm(true); //CHECK ANGLES!!
-            CheckBusy();*/
             MoveClaw(true);
             ExtendArm(true);
             RotateArm(true);
@@ -189,9 +187,6 @@ public class Main_Autonomous extends LinearOpMode {
         }
     }
 
-
-
-
     public void MoveForward(double distance, double maxSpeed) //distance in inches
     {
         if(opModeIsActive()) {
@@ -204,6 +199,7 @@ public class Main_Autonomous extends LinearOpMode {
             left_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             right_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             Move(maxSpeed, 0);
+            CheckBusy();
         }
 
     }
@@ -231,6 +227,7 @@ public class Main_Autonomous extends LinearOpMode {
             left_drive.setPower(speed);
             right_drive.setPower(speed);
             CheckBusy();
+
         }
 
     }
@@ -249,7 +246,7 @@ public class Main_Autonomous extends LinearOpMode {
             {
                 arm_rotate.setPower(-0.5);
             }
-            CheckBusy();
+            while(arm_rotate.isBusy()){}
         }
     }
 
@@ -267,7 +264,7 @@ public class Main_Autonomous extends LinearOpMode {
             {
                 arm_extension.setPower(0.5);
             }
-            CheckBusy();
+            while(arm_extension.isBusy()){}
         }
     }
 
@@ -291,7 +288,6 @@ public class Main_Autonomous extends LinearOpMode {
 
             left_drive.setPower(leftSpeed);
             right_drive.setPower(rightSpeed);
-            CheckBusy();
         }
 
     }
@@ -315,7 +311,7 @@ public class Main_Autonomous extends LinearOpMode {
             {
                 telemetry.addData("State", State);
                 telemetry.addData("Heading: ", "%7f", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
-                telemetry.addData("left, right", "%7d :%7d", (left_drive.getCurrentPosition()), (right_drive.getCurrentPosition()));
+                telemetry.addData("rotate, extension", "%7d :%7d", (arm_rotate.getCurrentPosition()), (arm_extension.getCurrentPosition()));
                 telemetry.update();
             }
             Move(0,0);
@@ -327,17 +323,14 @@ public class Main_Autonomous extends LinearOpMode {
 
     public String DetermineInitialPosition()
     {
-        int[] Clip = {11,14};
-        int[] Score = {13,16};
-
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         for (AprilTagDetection d:currentDetections)
         {
-            if(Arrays.asList(Clip).contains(d.id))
+            if(d.id == 11 || d.id == 14)
             {
                 return "Clip";
             }
-            else if(Arrays.asList(Score).contains(d.id))
+            else if(d.id == 13 || d.id == 16)
             {
                 return "Score";
             }

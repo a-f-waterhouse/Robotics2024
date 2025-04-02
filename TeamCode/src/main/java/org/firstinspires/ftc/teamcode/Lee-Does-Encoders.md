@@ -1,4 +1,4 @@
-## Hi it's me again :3
+## Hi :D
 In this document I'll go over how the built in encoders on DCMotors work, and when you need to use them.
 
 ## Basics
