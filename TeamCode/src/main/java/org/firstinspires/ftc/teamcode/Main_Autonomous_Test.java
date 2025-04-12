@@ -4,6 +4,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -16,11 +17,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import java.util.Arrays;
+
 import java.util.List;
 
 @Autonomous
-public class Main_Autonomous extends LinearOpMode {
+public class Main_Autonomous_Test extends LinearOpMode {
     private final int[][] AprilTagCoords =
     {
         {-72, 48},
@@ -211,8 +212,13 @@ public class Main_Autonomous extends LinearOpMode {
             right_drive.setTargetPosition(rightTarget);
             left_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             right_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            Move(maxSpeed, 0);
+            ((DcMotorEx)left_drive).setVelocity(10);
+            ((DcMotorEx)right_drive).setVelocity(10);
             CheckBusy();
+            if(!(leftTarget-5 < left_drive.getCurrentPosition() && left_drive.getCurrentPosition() < leftTarget + 5) || !(rightTarget-5 < right_drive.getCurrentPosition() && right_drive.getCurrentPosition() < rightTarget + 5))
+            {
+                MoveForward(leftTarget-left_drive.getCurrentPosition(), 0.1);
+            }
         }
 
     }
@@ -251,6 +257,7 @@ public class Main_Autonomous extends LinearOpMode {
             left_drive.setPower(speed);
             right_drive.setPower(speed);
             CheckBusy();
+            //use GetHeading
 
         }
 

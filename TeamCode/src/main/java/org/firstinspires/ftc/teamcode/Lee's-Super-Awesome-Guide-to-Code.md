@@ -1,7 +1,7 @@
 ## Welcome, I hope you enjoy ^^
 
 ## SAMPLES!!
-you can copy/paste the files from:
+You can copy/paste the files from:
 FtcRobotController/java/org.firstinspires.ftc.robotcontroller/external/samples
 to the folder that this is in.
 
@@ -25,15 +25,15 @@ Android studio *should* create imports for you automatically as you go along!
 ## Type of OpMode
 There may or may not be more, but the 3 important lines are:
 
-``@TeleOp`` -> this declares it as an opmode to be used with a controller
-``@Autonomous`` -> declares it as an autonomous opmode 
-``@Disabled``-> means it doesn't show up under the list of opmodes on the robot, so can't be run
+* ``@TeleOp`` -> this declares it as an opmode to be used with a controller
+* ``@Autonomous`` -> declares it as an autonomous opmode 
+* ``@Disabled``-> means it doesn't show up under the list of opmodes on the robot, so can't be run
 
 ## Declaring the main class
 
 ``public class <insert name here> extends LinearOpMode 
 {
-<code goes here!>
+``<code goes here!>``
 }``
 
 ## Initialising objects
@@ -47,7 +47,7 @@ It's mostly self explanatory - you can also just miss out the ``=null`` if you w
 There are 2 parts to this.
 
 1) say that you are overriding something with ``@Override``
-2) declare subprogram: ``public void runOpMode() { ``<insert code here>`` }`` 
+2) declare subprogram: ``public void runOpMode() { `` <insert code here> `` }`` 
 
 ## Hardware Map
 Inside the subprogram you have just declared, you have to map your hardware accordingly
