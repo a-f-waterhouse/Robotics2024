@@ -12,6 +12,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 
 import java.util.Vector;
 
+@Disabled
 @Autonomous
 public class UsefulFunctions extends LinearOpMode {
 

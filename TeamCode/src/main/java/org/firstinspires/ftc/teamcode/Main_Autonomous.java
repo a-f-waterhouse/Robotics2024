@@ -4,6 +4,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -16,21 +17,21 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import java.util.Arrays;
+
 import java.util.List;
 
 @Autonomous
 public class Main_Autonomous extends LinearOpMode {
     private final int[][] AprilTagCoords =
-    {
-        {-72, 48},
-        {0, 72},
-        {72, 48},
-        {72, -48},
-        {0, -72},
-        {-72, -48}
+            {
+                    {-72, 48},
+                    {0, 72},
+                    {72, 48},
+                    {72, -48},
+                    {0, -72},
+                    {-72, -48}
 
-    };
+            };
     int[]  servoPos = {-30,30}; //open, close
     int[] armPos = {480,5}; //out, in
     int[] armRotatePos = {-1200, -800, -5}; //up, down
@@ -39,9 +40,9 @@ public class Main_Autonomous extends LinearOpMode {
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
     private DcMotor left_drive;
-    private DcMotor right_drive;    
-    private DcMotor arm_rotate;    
-    private DcMotor arm_extension;    
+    private DcMotor right_drive;
+    private DcMotor arm_rotate;
+    private DcMotor arm_extension;
     private Servo claw_servo;
     private IMU imu;
     private final ElapsedTime timer = new ElapsedTime();
@@ -106,31 +107,9 @@ public class Main_Autonomous extends LinearOpMode {
             telemetry.addData("Heading: ", "%7f", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
             telemetry.addData("left, right", "%7d :%7d", (left_drive.getCurrentPosition()), (right_drive.getCurrentPosition()));
             telemetry.update();
-            State = "ScoreBaskets"; //testing
-            switch (State)
-            {
-                case "ClipToSub":
-                    ClippingToSub();
-                    State = "ObservationZone";
-                    State = "";//
-                    break;
-                case "ScoreBaskets":
-                    ScoringBaskets();
-                    State = "AscentZone";
-                    break;
-                case "ObservationZone":
-                    ReturnToOZ();
-                    State = "";
-                    break;
-                case "AscentZone":
-                    GoToAZ();
-                    State = "";
-                    break;
-                default:
-                    telemetry.addLine("Help.");
-            }
+            State = "ScoreBaskets";
+            ScoringBaskets();
             requestOpModeStop();
-
         }
         visionPortal.close();
     }
@@ -140,20 +119,15 @@ public class Main_Autonomous extends LinearOpMode {
         if(opModeIsActive())
         {
             MoveClaw(true);
-            MoveForward(250, 0.3);
-           //
-            //MoveForward(100,0.3);
-            //MoveCurve(470, 0.3,80, 0.00); //430 +510
-            //TurnWithEncoders(-45,0.05); //80= 90  223 375
-            //MoveForward(-70, -0.3);*/
-
+            MoveForward(280, 300); //265
             RotateArm(0);
             ExtendArm(false);
-            MoveForward(30,0.3);
-            RotateArm(1, 0.75);
+            RotateArm(1);
             MoveClaw(false);
             ExtendArm(true);
-            RotateArm(2);
+            RotateArm(2, 0.3);
+            TurnWithEncoders(35, 200); //33
+            MoveForward(-550, 300);
         }
     }
 
@@ -171,18 +145,18 @@ public class Main_Autonomous extends LinearOpMode {
     {
         if(opModeIsActive())
         {
-            //MoveCurve(300, 0.3, -50, 0.03);
-            MoveForward(350, 0.3);
-            TurnWithEncoders(80, 0.1);
-            MoveForward(140, 0.3);
+            /*TurnWithEncoders(-20, 300);
+            MoveForward(300, 300);
+            TurnWithEncoders(35, 300);
+            MoveForward(280, 400);*/
 
             MoveClaw(true);
             RotateArm(0);
             ExtendArm(false);
-            MoveForward(40, 0.1);
+            MoveForward(60, 300);
+            //RotateArm(2, 0.3);
             MoveClaw(false);
             ExtendArm(true);
-            MoveForward(-40, 0.1);
             RotateArm(2);
 
         }
@@ -211,8 +185,13 @@ public class Main_Autonomous extends LinearOpMode {
             right_drive.setTargetPosition(rightTarget);
             left_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             right_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            Move(maxSpeed, 0);
+            ((DcMotorEx)left_drive).setVelocity(300);
+            ((DcMotorEx)right_drive).setVelocity(300);
             CheckBusy();
+            if(!(leftTarget-5 < left_drive.getCurrentPosition() && left_drive.getCurrentPosition() < leftTarget + 5) || !(rightTarget-5 < right_drive.getCurrentPosition() && right_drive.getCurrentPosition() < rightTarget + 5))
+            {
+                MoveForward(leftTarget-left_drive.getCurrentPosition(), 0.1);
+            }
         }
 
     }
@@ -248,9 +227,10 @@ public class Main_Autonomous extends LinearOpMode {
             right_drive.setTargetPosition(rightTarget);
             left_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             right_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            left_drive.setPower(speed);
-            right_drive.setPower(speed);
+            ((DcMotorEx)left_drive).setVelocity(200);
+            ((DcMotorEx)right_drive).setVelocity(200);
             CheckBusy();
+            //use GetHeading
 
         }
 
@@ -344,9 +324,11 @@ public class Main_Autonomous extends LinearOpMode {
                 telemetry.addData("rotate, extension", "%7d :%7d", (arm_rotate.getCurrentPosition()), (arm_extension.getCurrentPosition()));
                 telemetry.update();
             }
-            Move(0,0);
             timer.reset();
             while(timer.seconds() < 1){}
+            Move(0,0);
+            timer.reset();
+            while(timer.seconds() < 0.5){}
         }
 
     }
@@ -356,16 +338,12 @@ public class Main_Autonomous extends LinearOpMode {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         for (AprilTagDetection d:currentDetections)
         {
-            if(d.id == 11 || d.id == 14)
-            {
-                return "Clip";
-            }
-            else if(d.id == 13 || d.id == 16)
+            if(d.id == 13 || d.id == 16)
             {
                 return "Score";
             }
         }
-        return "NoDetections";
+        return "Clip";
     }
 
 

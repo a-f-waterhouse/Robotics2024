@@ -20,29 +20,37 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.List;
 
+/*
+EXPERIMENT W/ REDUCING DELAY IN CHECKBUSY() - DOES IT REDUCE CONSISTENCY?
+GOALS
+ - CLIP + DROP OFF SAMPLE IN OBS
+ - 2 X BASKETS
+
+
+ CTRL B
+ */
+
 @Autonomous
 public class Main_Autonomous_Test extends LinearOpMode {
     private final int[][] AprilTagCoords =
-    {
-        {-72, 48},
-        {0, 72},
-        {72, 48},
-        {72, -48},
-        {0, -72},
-        {-72, -48}
+            {
+                    {-72, 48},
+                    {0, 72},
+                    {72, 48},
+                    {72, -48},
+                    {0, -72},
+                    {-72, -48}
 
-    };
+            };
     int[]  servoPos = {-30,30}; //open, close
     int[] armPos = {480,5}; //out, in
     int[] armRotatePos = {-1200, -800, -5}; //up, down
-    private static final int CountsPerInch = 1; //NEED TO CALCULATE
-    private static final int CountsPerDegree = 1; //NEED To CALCULATE
     private AprilTagProcessor aprilTag;
     private VisionPortal visionPortal;
     private DcMotor left_drive;
-    private DcMotor right_drive;    
-    private DcMotor arm_rotate;    
-    private DcMotor arm_extension;    
+    private DcMotor right_drive;
+    private DcMotor arm_rotate;
+    private DcMotor arm_extension;
     private Servo claw_servo;
     private IMU imu;
     private final ElapsedTime timer = new ElapsedTime();
@@ -107,64 +115,29 @@ public class Main_Autonomous_Test extends LinearOpMode {
             telemetry.addData("Heading: ", "%7f", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
             telemetry.addData("left, right", "%7d :%7d", (left_drive.getCurrentPosition()), (right_drive.getCurrentPosition()));
             telemetry.update();
-            State = "ScoreBaskets"; //testing
-            switch (State)
-            {
-                case "ClipToSub":
-                    ClippingToSub();
-                    State = "ObservationZone";
-                    State = "";//
-                    break;
-                case "ScoreBaskets":
-                    ScoringBaskets();
-                    State = "AscentZone";
-                    break;
-                case "ObservationZone":
-                    ReturnToOZ();
-                    State = "";
-                    break;
-                case "AscentZone":
-                    GoToAZ();
-                    State = "";
-                    break;
-                default:
-                    telemetry.addLine("Help.");
-            }
-            requestOpModeStop();
 
+            //need to redo logic!!
+
+
+            requestOpModeStop();
         }
         visionPortal.close();
     }
 
-    public void ClippingToSub() //somewhat reliable clips when started going forwards
+    public void ClippingToSub()
     {
         if(opModeIsActive())
         {
             MoveClaw(true);
-            MoveForward(250, 0.3);
-           //
-            //MoveForward(100,0.3);
-            //MoveCurve(470, 0.3,80, 0.00); //430 +510
-            //TurnWithEncoders(-45,0.05); //80= 90  223 375
-            //MoveForward(-70, -0.3);*/
-
+            MoveForward(280, 300);
             RotateArm(0);
             ExtendArm(false);
-            MoveForward(30,0.3);
-            RotateArm(1, 0.75);
+            RotateArm(1);
             MoveClaw(false);
             ExtendArm(true);
-            RotateArm(2);
-        }
-    }
-
-    public void ReturnToOZ() //observation zone
-    {
-        if(opModeIsActive())
-        {
-            TurnWithEncoders(-135, 0.05);
-            MoveForward(100, 0.3);
-            TurnWithEncoders(180, 0.05);
+            RotateArm(2, 0.3);
+            TurnWithEncoders(35, 200);
+            MoveForward(-550, 300);
         }
     }
 
@@ -172,93 +145,61 @@ public class Main_Autonomous_Test extends LinearOpMode {
     {
         if(opModeIsActive())
         {
-            //MoveCurve(300, 0.3, -50, 0.03);
-            MoveForward(350, 0.3);
-            TurnWithEncoders(80, 0.1);
-            MoveForward(140, 0.3);
+            /*TurnWithEncoders(-20, 300);
+            MoveForward(300, 300);
+            TurnWithEncoders(35, 300);
+            MoveForward(280, 400);*/
 
             MoveClaw(true);
             RotateArm(0);
             ExtendArm(false);
-            MoveForward(40, 0.1);
+            MoveForward(65, 300);
+            //RotateArm(2, 0.3);
             MoveClaw(false);
+            timer.reset();
+            while(timer.seconds() < 1){}
+            MoveForward(-20, 300);
             ExtendArm(true);
-            MoveForward(-40, 0.1);
             RotateArm(2);
 
         }
     }
 
-    public void GoToAZ() //Ascent Zone
-    {
-        if(opModeIsActive())
-        {
-            TurnWithEncoders(-100, 0.05); //100 degrees right
-            MoveForward(500, 0.3); //2m
-            TurnWithEncoders(-80, 0.05); //80 degrees right
-            MoveForward(100, 0.05); //0.5m
-            TurnWithEncoders(180, 0.05); //180 degrees
-        }
-    }
-
-    public void MoveForward(double distance, double maxSpeed) //distance in inches
+    public void MoveForward(int moveCounts, double maxSpeed)
     {
         if(opModeIsActive()) {
-            int moveCounts = (int) (distance * CountsPerInch);
             int leftTarget = left_drive.getCurrentPosition() + moveCounts;
-            int rightTarget = right_drive.getCurrentPosition() + moveCounts; //new target positions
+            int rightTarget = right_drive.getCurrentPosition() + moveCounts;
 
             left_drive.setTargetPosition(leftTarget);
             right_drive.setTargetPosition(rightTarget);
             left_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             right_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            ((DcMotorEx)left_drive).setVelocity(10);
-            ((DcMotorEx)right_drive).setVelocity(10);
+            ((DcMotorEx)left_drive).setVelocity(maxSpeed);
+            ((DcMotorEx)right_drive).setVelocity(maxSpeed);
             CheckBusy();
             if(!(leftTarget-5 < left_drive.getCurrentPosition() && left_drive.getCurrentPosition() < leftTarget + 5) || !(rightTarget-5 < right_drive.getCurrentPosition() && right_drive.getCurrentPosition() < rightTarget + 5))
             {
-                MoveForward(leftTarget-left_drive.getCurrentPosition(), 0.1);
+                MoveForward(leftTarget-left_drive.getCurrentPosition(), 100);
             }
         }
 
     }
 
-    public void MoveCurve(double distance, double maxSpeed, int adjust, double adjustSpeed) //distance in inches
-    {
-        if(opModeIsActive()) {
-            int moveCounts = (int) (distance * CountsPerInch);
-            int leftTarget = left_drive.getCurrentPosition() + moveCounts + adjust;
-            int rightTarget = right_drive.getCurrentPosition() + moveCounts - adjust; //new target positions
-
-            left_drive.setTargetPosition(leftTarget);
-            right_drive.setTargetPosition(rightTarget);
-            left_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            right_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            Move(maxSpeed-adjustSpeed, adjustSpeed);
-            CheckBusy();
-        }
-
-    }
-
-
-    public void TurnWithEncoders(double heading, double speed) //heading between -180 nad 180 relative to robot
+    public void TurnWithEncoders(int heading, double maxSpeed)
     {
         if(opModeIsActive())
         {
-            int leftTarget, rightTarget;
-
-            rightTarget = (int)(CountsPerDegree * heading) + right_drive.getCurrentPosition();
-            leftTarget = left_drive.getCurrentPosition()-(int)(CountsPerDegree * heading);
+            int rightTarget = (heading) + right_drive.getCurrentPosition();
+            int leftTarget = left_drive.getCurrentPosition()- heading;
 
             left_drive.setTargetPosition(leftTarget);
             right_drive.setTargetPosition(rightTarget);
             left_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             right_drive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            left_drive.setPower(speed);
-            right_drive.setPower(speed);
+            ((DcMotorEx)left_drive).setVelocity(maxSpeed);
+            ((DcMotorEx)right_drive).setVelocity(maxSpeed);
             CheckBusy();
-            //use GetHeading
-
         }
 
     }
@@ -351,9 +292,12 @@ public class Main_Autonomous_Test extends LinearOpMode {
                 telemetry.addData("rotate, extension", "%7d :%7d", (arm_rotate.getCurrentPosition()), (arm_extension.getCurrentPosition()));
                 telemetry.update();
             }
-            Move(0,0);
             timer.reset();
             while(timer.seconds() < 1){}
+            left_drive.setPower(0);
+            right_drive.setPower(0);
+            timer.reset();
+            while(timer.seconds() < 0.5){}
         }
 
     }
@@ -363,16 +307,12 @@ public class Main_Autonomous_Test extends LinearOpMode {
         List<AprilTagDetection> currentDetections = aprilTag.getDetections();
         for (AprilTagDetection d:currentDetections)
         {
-            if(d.id == 11 || d.id == 14)
-            {
-                return "Clip";
-            }
-            else if(d.id == 13 || d.id == 16)
+            if(d.id == 13 || d.id == 16)
             {
                 return "Score";
             }
         }
-        return "NoDetections";
+        return "Clip";
     }
 
 
@@ -415,22 +355,5 @@ public class Main_Autonomous_Test extends LinearOpMode {
     {
         return (degrees + 135)/270;
     }
-
-    public double NormaliseAngle(double angle) //returns angle between 180 and -180
-    {
-        if(angle > 180)
-        {
-            angle -= 360;
-        }
-        else if(angle < -180)
-        {
-            angle += 360;
-        }
-        return angle;
-
-    }
-
-
-
 
 }
