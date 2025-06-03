@@ -13,7 +13,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -25,8 +24,8 @@ public class RR_Test extends LinearOpMode
 {
     public class Arm
     {
-        private int[] Extensions = {0,0}; // out, in
-        private int[] Rotations = {0,0}; // up, down
+        private final int[] Extensions = {0,0}; // out, in
+        private final int[] Rotations = {0,0}; // up, down
         private DcMotorEx extendMotor;
         private  DcMotorEx rotateMotor;
         public Arm(HardwareMap hardwareMap)
@@ -44,7 +43,7 @@ public class RR_Test extends LinearOpMode
             private boolean init = false;
 
             @Override
-            public boolean run(TelemetryPacket packet)
+            public boolean run(@NonNull TelemetryPacket packet)
             {
                 if(!init)
                 {
@@ -71,7 +70,7 @@ public class RR_Test extends LinearOpMode
             private boolean init = false;
 
             @Override
-            public boolean run(TelemetryPacket packet)
+            public boolean run(@NonNull TelemetryPacket packet)
             {
                 if(!init)
                 {
@@ -96,12 +95,12 @@ public class RR_Test extends LinearOpMode
         public class ArmExtend implements Action
         {
             @Override
-            public boolean run(TelemetryPacket packet){ return false;} //!! TODO add functionality extend
+            public boolean run(@NonNull TelemetryPacket packet){ return false;} //!! TODO add functionality extend
         }
         public class ArmRetract implements Action
         {
             @Override
-            public boolean run(TelemetryPacket packet){ return false;} // TODO add functionality retract
+            public boolean run(@NonNull TelemetryPacket packet){ return false;} // TODO add functionality retract
         }
 
         public Action armUp()
@@ -120,14 +119,12 @@ public class RR_Test extends LinearOpMode
         {
             return new ArmRetract();
         }
-
-
     }
 
     public class Claw
     {
         private Servo claw;
-        private int[] Positions = {0,0}; //open, closed
+        private final int[] Positions = {0,0}; //open, closed
 
         public Claw(HardwareMap hardwareMap)
         {
@@ -137,18 +134,20 @@ public class RR_Test extends LinearOpMode
         public class OpenClaw implements Action
         {
             @Override
-            public boolean run(TelemetryPacket packet)
+            public boolean run(@NonNull TelemetryPacket packet)
             {
-                return false; // TODO add functionality open
+                claw.setPosition(Positions[(0)]);
+                return false;
             }
         }
 
         public class CloseClaw implements Action
         {
             @Override
-            public boolean run(TelemetryPacket packet)
+            public boolean run(@NonNull TelemetryPacket packet)
             {
-                return false; // TODO add functionality close
+                claw.setPosition(Positions[(1)]);
+                return false;
             }
         }
 
